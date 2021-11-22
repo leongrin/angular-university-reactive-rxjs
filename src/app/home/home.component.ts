@@ -1,9 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {Course, sortCoursesBySeqNo} from '../model/course';
-import {Observable} from 'rxjs';
-import {finalize, map} from 'rxjs/operators';
+import {Observable, throwError} from 'rxjs';
+import {catchError, finalize, map} from 'rxjs/operators';
 import {CoursesService} from '../services/courses.service';
 import {LoadingService} from '../services/loading.service';
+import {MessagesService} from '../services/messages.service';
 
 /*This is a smart component that sends data to a presentation component.*/
 @Component({
@@ -20,7 +21,9 @@ export class HomeComponent implements OnInit {
   courses$: Observable<Course[]>;
 
 
-  constructor(private courseServ: CoursesService, private loadingServ: LoadingService) {
+  constructor(private courseServ: CoursesService,
+              private loadingServ: LoadingService,
+              private messageServ: MessagesService) {
 
   }
 
@@ -32,6 +35,12 @@ export class HomeComponent implements OnInit {
     /*this.loadingServ.loadingOn();*/  // This is an alternative to using the showLoaderUntilCompleted api
     this.courses$ = this.courseServ.getCourses().pipe(
       map(courses => courses.sort(sortCoursesBySeqNo)),
+      catchError(err => {
+        const message = 'Could not load courses';
+        this.messageServ.showErrors(message);
+        console.log(message, err);
+        return throwError(err);
+      })
       /*finalize(() => this.loadingServ.loadingOff())*/
     );
 
