@@ -1,10 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {Course, sortCoursesBySeqNo} from '../model/course';
 import {Observable, throwError} from 'rxjs';
-import {catchError, finalize, map} from 'rxjs/operators';
+import {catchError, filter, finalize, map, tap} from 'rxjs/operators';
 import {CoursesService} from '../services/courses.service';
 import {LoadingService} from '../services/loading.service';
 import {MessagesService} from '../services/messages.service';
+import {CoursesStoreService} from '../services/courses-store.service';
 
 /*This is a smart component that sends data to a presentation component.*/
 @Component({
@@ -23,7 +24,8 @@ export class HomeComponent implements OnInit {
 
   constructor(private courseServ: CoursesService,
               private loadingServ: LoadingService,
-              private messageServ: MessagesService) {
+              private messageServ: MessagesService,
+              private coursesStoreServ: CoursesStoreService) {
 
   }
 
@@ -32,8 +34,11 @@ export class HomeComponent implements OnInit {
   }
 
   reloadCourses() {
+    console.log('Inside reloadCourses()');
+    console.log(`coursesSubject.getValue() => ${this.coursesStoreServ.coursesSubject.getValue().find(course => course.id = '17')?.description}`);
     /*this.loadingServ.loadingOn();*/  // This is an alternative to using the showLoaderUntilCompleted api
-    this.courses$ = this.courseServ.getCourses().pipe(
+
+    /*this.courses$ = this.courseServ.getCourses().pipe(
       map(courses => courses.sort(sortCoursesBySeqNo)),
       catchError(err => {
         const message = 'Could not load courses';
@@ -41,23 +46,35 @@ export class HomeComponent implements OnInit {
         console.log(message, err);
         return throwError(err);
       })
-      /*finalize(() => this.loadingServ.loadingOff())*/
+      /!*finalize(() => this.loadingServ.loadingOff())*!/
+    );*/
+
+
+    /*This is a solution if you want to take the data from the store (BehaviorSubject) to avoid requesting the backend multiple times
+     the same data*/
+    this.courses$ = this.coursesStoreServ.courses$.pipe(
+      filter(courses => courses && courses.length > 0)
     );
 
-    const loadingCourses$ = this.loadingServ.showLoaderUntilCompleted(this.courses$);
+    this.beginnerCourses$ = this.coursesStoreServ.filterByCategory('BEGINNER');
 
-    this.beginnerCourses$ = loadingCourses$.pipe(
-      map(courses => courses.filter(course => course.category === 'BEGINNER'))
+    this.advancedCourses$ = this.coursesStoreServ.filterByCategory('ADVANCED');
+
+    /*const loadingCourses$ = this.loadingServ.showLoaderUntilCompleted(this.courses$);*/
+
+    /*WITH THE LOADING BEING APPLIED, IN A STATELESS WAY*/
+    /*this.beginnerCourses$ = loadingCourses$.pipe(
+      map(courses => courses.filter(course => course.category === 'BEGINNER')),
+      tap(courses => console.log(`Inside tap => ${courses.find(course => course.id = '17')?.description}`))
     );
-
     this.advancedCourses$ = loadingCourses$.pipe(
       map(courses => courses.filter(course => course.category === 'ADVANCED'))
-    );
+    );*/
 
+    /*WITHOUT THE LOADING BEING APPLIED, IN A STATELESS WAY*/
     /*this.beginnerCourses$ = this.courses$.pipe(
       map(courses => courses.filter(course => course.category === 'BEGINNER'))
     );
-
     this.advancedCourses$ = this.courses$.pipe(
       map(courses => courses.filter(course => course.category === 'ADVANCED'))
     );*/

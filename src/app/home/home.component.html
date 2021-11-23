@@ -11,6 +11,9 @@
             (coursesChanged)="reloadCourses()"
             [courses]="beginnerCourses$ | async"></courses-card-list>
 
+          <!--<courses-card-list
+            [courses]="beginnerCourses$ | async"></courses-card-list>-->
+
         </mat-tab>
 
         <mat-tab label="Advanced">
@@ -18,6 +21,9 @@
           <courses-card-list
             (coursesChanged)="reloadCourses()"
             [courses]="advancedCourses$ | async"></courses-card-list>
+
+          <!--<courses-card-list
+            [courses]="advancedCourses$ | async"></courses-card-list>-->
 
         </mat-tab>
 

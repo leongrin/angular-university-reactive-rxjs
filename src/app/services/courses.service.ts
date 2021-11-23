@@ -21,6 +21,7 @@ export class CoursesService {
 
   /*Partial means you can take advantage from autocomplete from Course, without having to inform a complete Course object*/
   saveCourse(courseId: string, changes: Partial<Course>): Observable<any> {
+    console.log('saveCourse to the backend if subscribed');
     return this.http.put(`/api/courses/${courseId}`, changes).pipe(
       shareReplay()
     );

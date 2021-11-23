@@ -23,13 +23,13 @@ export class LoadingService {
   }
 
   loadingOn() {
-    console.log('loadingOn activated');
+    /*console.log('loadingOn activated');*/
     this.loadingSubject.next(true);
 
   }
 
   loadingOff() {
-    console.log('loadingOff activated');
+    /*console.log('loadingOff activated');*/
     this.loadingSubject.next(false);
 
   }

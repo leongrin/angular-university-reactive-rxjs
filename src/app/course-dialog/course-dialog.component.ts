@@ -5,7 +5,10 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import * as moment from 'moment';
 import {CoursesService} from '../services/courses.service';
 import {LoadingService} from '../services/loading.service';
-import {Observable} from 'rxjs';
+import {Observable, throwError} from 'rxjs';
+import {catchError, tap} from 'rxjs/operators';
+import {MessagesService} from '../services/messages.service';
+import {CoursesStoreService} from '../services/courses-store.service';
 
 @Component({
   selector: 'course-dialog',
@@ -23,7 +26,9 @@ export class CourseDialogComponent implements AfterViewInit {
     private dialogRef: MatDialogRef<CourseDialogComponent>,
     @Inject(MAT_DIALOG_DATA) course: Course,
     private coursesServ: CoursesService,
-    private loadingServ: LoadingService) {
+    private loadingServ: LoadingService,
+    private coursesStoreServ: CoursesStoreService,
+    private messageServ: MessagesService) {
 
     this.course = course;
 
@@ -41,11 +46,26 @@ export class CourseDialogComponent implements AfterViewInit {
   }
 
   save() {
+    console.log('Saving changes...');
     const changes = this.form.value;
-    const save$: Observable<any> = this.coursesServ.saveCourse(this.course.id, changes);
 
-    this.loadingServ.showLoaderUntilCompleted(save$)
-      .subscribe(val => this.dialogRef.close(val));
+    /*const save$: Observable<any> = this.coursesStoreServ.saveCourse(this.course.id, changes).pipe(
+      catchError(err => {
+        const msg = 'An error occurred while saving the course';
+        this.messageServ.showErrors(msg);
+        console.log(msg, err);
+        return throwError(err);
+      })
+    );*/
+
+    this.coursesStoreServ.saveCourse(this.course.id, changes).subscribe();
+
+    this.dialogRef.close(changes);
+
+    /*save$.subscribe();*/
+
+    /*this.loadingServ.showLoaderUntilCompleted(save$)
+      .subscribe(val => this.dialogRef.close(val));*/
   }
 
   close() {
