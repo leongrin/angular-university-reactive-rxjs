@@ -30,26 +30,13 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.reloadCourses();
+    /*this.loadCoursesStateless();*/   // to activate this option, needs to update the view too
+    this.loadCoursesStateful();
   }
 
-  reloadCourses() {
-    console.log('Inside reloadCourses()');
-    console.log(`coursesSubject.getValue() => ${this.coursesStoreServ.coursesSubject.getValue().find(course => course.id = '17')?.description}`);
-    /*this.loadingServ.loadingOn();*/  // This is an alternative to using the showLoaderUntilCompleted api
-
-    /*this.courses$ = this.courseServ.getCourses().pipe(
-      map(courses => courses.sort(sortCoursesBySeqNo)),
-      catchError(err => {
-        const message = 'Could not load courses';
-        this.messageServ.showErrors(message);
-        console.log(message, err);
-        return throwError(err);
-      })
-      /!*finalize(() => this.loadingServ.loadingOff())*!/
-    );*/
 
 
+  loadCoursesStateful() {
     /*This is a solution if you want to take the data from the store (BehaviorSubject) to avoid requesting the backend multiple times
      the same data*/
     this.courses$ = this.coursesStoreServ.courses$.pipe(
@@ -59,26 +46,46 @@ export class HomeComponent implements OnInit {
     this.beginnerCourses$ = this.coursesStoreServ.filterByCategory('BEGINNER');
 
     this.advancedCourses$ = this.coursesStoreServ.filterByCategory('ADVANCED');
+  }
 
-    /*const loadingCourses$ = this.loadingServ.showLoaderUntilCompleted(this.courses$);*/
 
-    /*WITH THE LOADING BEING APPLIED, IN A STATELESS WAY*/
-    /*this.beginnerCourses$ = loadingCourses$.pipe(
+
+
+  /*loadCoursesStateless() {
+
+    /!*THIS IS THE STATELESS SOLUTION, ALWAYS GETTING THE DATA FROM THE SERVER*!/
+    /!*this.loadingServ.loadingOn();*!/  // This is an alternative to using the showLoaderUntilCompleted api
+
+    this.courses$ = this.courseServ.getCourses().pipe(
+      map(courses => courses.sort(sortCoursesBySeqNo)),
+      catchError(err => {
+        const message = 'Could not load courses';
+        this.messageServ.showErrors(message);
+        console.log(message, err);
+        return throwError(err);
+      })
+      /!*finalize(() => this.loadingServ.loadingOff())*!/
+    );
+
+    /!*WITH THE LOADING BEING APPLIED, IN A STATELESS WAY*!/
+    const loadingCourses$ = this.loadingServ.showLoaderUntilCompleted(this.courses$);
+
+    this.beginnerCourses$ = loadingCourses$.pipe(
       map(courses => courses.filter(course => course.category === 'BEGINNER')),
       tap(courses => console.log(`Inside tap => ${courses.find(course => course.id = '17')?.description}`))
     );
     this.advancedCourses$ = loadingCourses$.pipe(
       map(courses => courses.filter(course => course.category === 'ADVANCED'))
-    );*/
+    );
 
-    /*WITHOUT THE LOADING BEING APPLIED, IN A STATELESS WAY*/
-    /*this.beginnerCourses$ = this.courses$.pipe(
+    /!*WITHOUT THE LOADING BEING APPLIED, IN A STATELESS WAY*!/
+    /!*this.beginnerCourses$ = this.courses$.pipe(
       map(courses => courses.filter(course => course.category === 'BEGINNER'))
     );
     this.advancedCourses$ = this.courses$.pipe(
       map(courses => courses.filter(course => course.category === 'ADVANCED'))
-    );*/
-  }
+    );*!/
+  }*/
 
 }
 

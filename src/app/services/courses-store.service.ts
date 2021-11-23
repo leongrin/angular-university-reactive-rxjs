@@ -1,10 +1,10 @@
 import {Injectable, OnInit} from '@angular/core';
-import {BehaviorSubject, Observable, Subject, throwError} from 'rxjs';
-import {catchError, map, tap} from 'rxjs/operators';
+import {BehaviorSubject, Observable, throwError} from 'rxjs';
+import {catchError, map, shareReplay, tap} from 'rxjs/operators';
 import {Course, sortCoursesBySeqNo} from '../model/course';
-import {CoursesService} from './courses.service';
 import {LoadingService} from './loading.service';
 import {MessagesService} from './messages.service';
+import {HttpClient} from '@angular/common/http';
 
 /*This is a stateful service, that stores the Courses Data*/
 @Injectable({
@@ -12,13 +12,13 @@ import {MessagesService} from './messages.service';
 })
 export class CoursesStoreService implements OnInit {
 
-  coursesSubject = new BehaviorSubject<Course[]>([]);
+  private coursesSubject = new BehaviorSubject<Course[]>([]);
 
   courses$: Observable<Course[]> = this.coursesSubject.asObservable();
 
-  constructor(private courseServ: CoursesService,
-              private loadingServ: LoadingService,
-              private messageServ: MessagesService) {
+  constructor(private loadingServ: LoadingService,
+              private messageServ: MessagesService,
+              private http: HttpClient) {
     console.log('Inside constructor to load courses');
     this.loadCourses();  // It only works if called inside the constructor
   }
@@ -38,14 +38,13 @@ export class CoursesStoreService implements OnInit {
     newCourses[index] = newModifiedCourse;
     this.coursesSubject.next(newCourses);
 
-    return this.courseServ.saveCourse(courseId, changes);
+    return this.http.put(`/api/courses/${courseId}`, changes).pipe(
+      shareReplay()
+    );
   }
 
   filterByCategory(courseLevel: string): Observable<Course[]> {
-    console.log('filterByCategory getting started');
-    console.log(`coursesSubject.getValue() => ${this.coursesSubject.getValue().find(course => course.id = '17')?.description}`);
-    return this.coursesSubject.pipe(
-      tap(courses => console.log(`Inside tap => ${courses.find(course => course.id = '17')?.description}`)),
+    return this.courses$.pipe(
       map(courses => courses.filter(course => course.category === courseLevel))
     );
   }
@@ -55,7 +54,8 @@ export class CoursesStoreService implements OnInit {
     /*this.loadingServ.loadingOn();*/  // This is an alternative to using the showLoaderUntilCompleted api
     console.log(`loadCourses() initialized`);
 
-    const loadCourses$ = this.courseServ.getCourses().pipe(
+    const loadCourses$ = this.http.get<Course[]>('/api/courses').pipe(
+      map(res => res['payload']),
       map(courses => courses.sort(sortCoursesBySeqNo)),
       catchError(err => {
         const message = 'Could not load courses';
@@ -66,7 +66,8 @@ export class CoursesStoreService implements OnInit {
       tap(courses => {
         console.log(`Updating courses$ inside loadCourses()`);
         this.coursesSubject.next(courses);
-      })
+      }),
+      shareReplay()
       /*finalize(() => this.loadingServ.loadingOff())*/
     );
 

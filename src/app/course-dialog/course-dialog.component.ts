@@ -49,23 +49,25 @@ export class CourseDialogComponent implements AfterViewInit {
     console.log('Saving changes...');
     const changes = this.form.value;
 
-    /*const save$: Observable<any> = this.coursesStoreServ.saveCourse(this.course.id, changes).pipe(
+    const save$: Observable<any> = this.coursesStoreServ.saveCourse(this.course.id, changes).pipe(
       catchError(err => {
         const msg = 'An error occurred while saving the course';
         this.messageServ.showErrors(msg);
         console.log(msg, err);
         return throwError(err);
       })
-    );*/
+    );
 
-    this.coursesStoreServ.saveCourse(this.course.id, changes).subscribe();
-
+    this.loadingServ.showLoaderUntilCompleted(save$)
+      .subscribe();
+    /*SAVING COURSE IN A OPTIMISTIC WAY, CLOSING THE DIALOG BEFORE A CONFIRMATION FROM THE BACKEND*/
     this.dialogRef.close(changes);
 
-    /*save$.subscribe();*/
-
-    /*this.loadingServ.showLoaderUntilCompleted(save$)
-      .subscribe(val => this.dialogRef.close(val));*/
+    /*SAVING COURSE IN A NON OPTIMISTIC WAY, CLOSING THE DIALOG AFTER A CONFIRMATION FROM THE BACKEND*/
+    /*SOLUTION FOR THE STATELESS WAY*/
+    /*this.coursesServ.saveCourse(this.course.id, changes).subscribe(() => {
+      this.dialogRef.close(changes);
+    });*/
   }
 
   close() {

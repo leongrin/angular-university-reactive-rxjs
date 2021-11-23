@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Course, sortCoursesBySeqNo} from '../model/course';
+import {Course} from '../model/course';
 import {Observable} from 'rxjs';
-import {filter, map, shareReplay} from 'rxjs/operators';
+import {map, shareReplay} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
