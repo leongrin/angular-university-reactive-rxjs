@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Course} from '../model/course';
 import {
   debounceTime,
@@ -15,6 +15,8 @@ import {
 } from 'rxjs/operators';
 import {merge, fromEvent, Observable, concat} from 'rxjs';
 import {Lesson} from '../model/lesson';
+import {CoursesService} from '../services/courses.service';
+import {LoadingService} from '../services/loading.service';
 
 
 @Component({
@@ -24,7 +26,14 @@ import {Lesson} from '../model/lesson';
 })
 export class SearchLessonsComponent implements OnInit {
 
-  constructor() {
+  searchResults$: Observable<Lesson[]>;
+  loadingLessons$: Observable<Lesson[]>;
+
+  activeLesson: Lesson;
+
+  constructor(private coursesServ: CoursesService,
+              private loadingServ: LoadingService,
+              private router: Router) {
 
 
   }
@@ -32,6 +41,19 @@ export class SearchLessonsComponent implements OnInit {
   ngOnInit() {
 
 
+  }
+
+  onSearch(search: string) {
+    this.searchResults$ = this.coursesServ.searchLessons(search);
+    this.loadingLessons$ = this.loadingServ.showLoaderUntilCompleted(this.searchResults$);
+  }
+
+  openLesson(lesson: Lesson) {
+    this.activeLesson = lesson;
+  }
+
+  onBackToSearch() {
+    this.activeLesson = null;
   }
 
 }

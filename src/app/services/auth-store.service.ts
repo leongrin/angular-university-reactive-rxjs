@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, of} from 'rxjs';
+import {BehaviorSubject, Observable, of, throwError} from 'rxjs';
 import {User} from '../model/user';
 import {HttpClient} from '@angular/common/http';
 import {catchError, map, shareReplay, tap} from 'rxjs/operators';
@@ -43,7 +43,7 @@ export class AuthStoreService {
           const msg = 'Invalid username or password. Please try again.';
           console.log(msg, err);
           this.messageServ.showErrors(msg);
-          return of(err);
+          return throwError(err);
         }),
         shareReplay()
       );
