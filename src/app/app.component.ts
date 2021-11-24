@@ -1,7 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {LoadingService} from './services/loading.service';
 import {AuthStoreService} from './services/auth-store.service';
-
 
 
 @Component({
