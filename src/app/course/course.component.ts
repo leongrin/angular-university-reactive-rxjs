@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Course} from '../model/course';
 import {combineLatest, Observable} from 'rxjs';
@@ -16,7 +16,8 @@ interface CourseData {
   // tslint:disable-next-line:component-selector
   selector: 'course',
   templateUrl: './course.component.html',
-  styleUrls: ['./course.component.css']
+  styleUrls: ['./course.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush  // optional
 })
 export class CourseComponent implements OnInit {
 

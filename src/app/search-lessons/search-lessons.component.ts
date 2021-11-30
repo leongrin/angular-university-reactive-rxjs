@@ -1,28 +1,16 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Course} from '../model/course';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  startWith,
-  tap,
-  delay,
-  map,
-  concatMap,
-  switchMap,
-  withLatestFrom,
-  concatAll, shareReplay
-} from 'rxjs/operators';
-import {merge, fromEvent, Observable, concat} from 'rxjs';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {Observable} from 'rxjs';
 import {Lesson} from '../model/lesson';
 import {CoursesService} from '../services/courses.service';
 import {LoadingService} from '../services/loading.service';
 
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'course',
   templateUrl: './search-lessons.component.html',
-  styleUrls: ['./search-lessons.component.css']
+  styleUrls: ['./search-lessons.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush  // optional
 })
 export class SearchLessonsComponent implements OnInit {
 
@@ -32,8 +20,7 @@ export class SearchLessonsComponent implements OnInit {
   activeLesson: Lesson;
 
   constructor(private coursesServ: CoursesService,
-              private loadingServ: LoadingService,
-              private router: Router) {
+              private loadingServ: LoadingService) {
 
 
   }

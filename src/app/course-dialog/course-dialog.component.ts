@@ -5,12 +5,13 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import * as moment from 'moment';
 import {CoursesService} from '../services/courses.service';
 import {LoadingService} from '../services/loading.service';
-import {Observable, throwError} from 'rxjs';
-import {catchError, tap} from 'rxjs/operators';
+import {throwError} from 'rxjs';
+import {catchError} from 'rxjs/operators';
 import {MessagesService} from '../services/messages.service';
 import {CoursesStoreService} from '../services/courses-store.service';
 
 @Component({
+  // tslint:disable-next-line:component-selector
   selector: 'course-dialog',
   templateUrl: './course-dialog.component.html',
   styleUrls: ['./course-dialog.component.css']
@@ -49,7 +50,7 @@ export class CourseDialogComponent implements AfterViewInit {
     console.log('Saving changes...');
     const changes = this.form.value;
 
-    const save$: Observable<any> = this.coursesStoreServ.saveCourse(this.course.id, changes).pipe(
+    this.coursesStoreServ.saveCourse(this.course.id, changes).pipe(
       catchError(err => {
         const msg = 'An error occurred while saving the course';
         this.messageServ.showErrors(msg);
@@ -58,8 +59,18 @@ export class CourseDialogComponent implements AfterViewInit {
       })
     );
 
+    /*SAVING USING THE LOADING EFFECT WHILE THE OBSERVABLE COMPLETES*/
+    /*const save$: Observable<any> = this.coursesStoreServ.saveCourse(this.course.id, changes).pipe(
+      catchError(err => {
+        const msg = 'An error occurred while saving the course';
+        this.messageServ.showErrors(msg);
+        console.log(msg, err);
+        return throwError(err);
+      })
+    );
     this.loadingServ.showLoaderUntilCompleted(save$)
-      .subscribe();
+      .subscribe();*/
+
     /*SAVING COURSE IN A OPTIMISTIC WAY, CLOSING THE DIALOG BEFORE A CONFIRMATION FROM THE BACKEND*/
     this.dialogRef.close(changes);
 
